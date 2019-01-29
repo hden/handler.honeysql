@@ -1,4 +1,4 @@
-# Duct handler.honeysql
+# Duct handler.honeysql [![CircleCI](https://circleci.com/gh/hden/handler.honeysql/tree/master.svg?style=svg)](https://circleci.com/gh/hden/handler.honeysql/tree/master)
 
 A [Duct][] library that provides a way of constructing simple [Ring][]
 handler functions that execute SQL expressions.
@@ -132,7 +132,7 @@ For example:
  {:db       #ig/ref :duct.database/sql
   :request  {{:keys [id]} :route-params, {:strs [name]} :form-params}
   :sql      {:update :products :set {:name name} :where [:= :id id]}}
-  
+
  [:duct.handler.sql/execute :example.handler.product/destroy]
  {:db       #ig/ref :duct.database/sql
   :request  {{:keys [id]} :route-params}
@@ -157,13 +157,13 @@ something like:
  {"/products"
   {[:get]        [:product/list]
    [:get "/" id] [:product/find ^uuid id]
-   
+
    [:post {{:strs [name]} :form-params}]
    [:product/create name]
-   
+
    [:put "/" id {{:strs [name]} :form-params}]
    [:product/update ^uuid id name]
-   
+
    [:delete "/" id]
    [:product/destroy ^uuid id]}}
 
@@ -173,7 +173,7 @@ something like:
  [:duct.handler.sql/query-one :example.handler.product/find]
  {:request {[_ id] :ataraxy/result}
   :sql     {:select [:*] :from [:products] :where [:= :id id]}}
-  
+
  {[:duct.handler.sql/insert :example.handler.product/create]
  {:request  {[_ name] :ataraxy/result}
   :sql      {:insert-into :products :columns [:name] :values [[name]]}
@@ -182,7 +182,7 @@ something like:
 {[:duct.handler.sql/execute :example.handler.product/update]
  {:request {[_ id name] :ataraxy/result}
   :sql     {:update :products :set {:name name} :where [:= :id id]}}
-  
+
  [:duct.handler.sql/execute :example.handler.product/destroy]
  {:request {[_ id] :ataraxy/result}
   :sql     {:delete-from :products :where [:= :id id]}}}}
