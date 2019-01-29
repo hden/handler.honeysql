@@ -1,6 +1,4 @@
-# Duct handler.sql
-
-[![Build Status](https://travis-ci.org/duct-framework/handler.sql.svg?branch=master)](https://travis-ci.org/duct-framework/handler.sql)
+# Duct handler.honeysql
 
 A [Duct][] library that provides a way of constructing simple [Ring][]
 handler functions that execute SQL expressions.
@@ -8,11 +6,14 @@ handler functions that execute SQL expressions.
 [duct]: https://github.com/duct-framework/duct
 [ring]: https://github.com/ring-clojure/ring
 
+## Note
+Forked from: https://github.com/duct-framework/handler.sql
+
 ## Installation
 
 To install, add the following to your project `:dependencies`:
 
-    [duct/handler.sql "0.3.1"]
+    [hden/handler.honeysql "0.3.1"]
 
 ## Usage
 
@@ -35,7 +36,7 @@ each time:
 ```edn
 {[:duct.handler.sql/query :example.handler.product/list]
  {:db  #ig/ref :duct.database/sql
-  :sql ["SELECT * FROM products"]}}
+  :sql {:select [:*] :from [:products]}}}
 ```
 
 In the above example, a [composite key][] is used to provide a unique
@@ -51,7 +52,7 @@ destructure the parameters you want in the `:request` option:
 {[:duct.handler.sql/query-one :example.handler.product/find]
  {:db      #ig/ref :duct.database/sql
   :request {{:keys [id]} :route-params}
-  :sql     ["SELECT * FROM products WHERE id = ?" id]}}
+  :sql     {:select [:*] :from [:products] :where [:= :id id]}}}
 ```
 
 The response can also be altered. The `:rename` option is available
@@ -60,7 +61,7 @@ for renaming keys returned in the result set:
 ```edn
 {[:duct.handler.sql/query :example.handler.product/list]
  {:db     #ig/ref :duct.database/sql
-  :sql    ["SELECT id, name FROM products"]
+  :sql    [:select [:id :name] :from [:products]]
   :rename {:id :product/id, :name :product/name}}}
 ```
 
@@ -70,7 +71,7 @@ Templates][]:
 ```edn
 {[:duct.handler.sql/query :example.handler.product/list]
  {:db    #ig/ref :duct.database/sql
-  :sql   ["SELECT id, name FROM products"]
+  :sql   [:select [:id :name] :from [:products]]
   :hrefs {:self "/products{/id}"}}}
 ```
 
@@ -84,7 +85,7 @@ not to show up in the final response:
 ```edn
 {[:duct.handler.sql/query :example.handler.product/list]
  {:db     #ig/ref :duct.database/sql
-  :sql    ["SELECT id, name FROM products"]
+  :sql    [:select [:id :name] :from [:products]]
   :hrefs  {:self "/products{/id}"}
   :remove [:id]}}
 ```
@@ -109,7 +110,7 @@ header created from the generated ID of an `INSERT`. For example:
 {[:duct.handler.sql/insert :example.handler.product/create]
  {:db       #ig/ref :duct.database/sql
   :request  {{:strs [name]} :form-params}
-  :sql      ["INSERT INTO products (name) VALUES (?)" name]
+  :sql      {:insert-into :products :columns [:name] :values [[name]]}
   :location "/products{/last_insert_rowid}"}}
 ```
 
@@ -130,12 +131,12 @@ For example:
 {[:duct.handler.sql/execute :example.handler.product/update]
  {:db       #ig/ref :duct.database/sql
   :request  {{:keys [id]} :route-params, {:strs [name]} :form-params}
-  :sql      ["UPDATE products SET name = ? WHERE id = ?" name id]}
+  :sql      {:update :products :set {:name name} :where [:= :id id]}}
   
  [:duct.handler.sql/execute :example.handler.product/destroy]
  {:db       #ig/ref :duct.database/sql
   :request  {{:keys [id]} :route-params}
-  :sql      ["DELETE FROM products WHERE id = ?" id]}}
+  :sql      {:delete-from :products :where [:= :id id]}}
 ```
 
 [sqlite]: https://sqlite.org/
@@ -167,24 +168,24 @@ something like:
    [:product/destroy ^uuid id]}}
 
  [:duct.handler.sql/query :example.handler.product/list]
- {:sql ["SELECT * FROM products"]}
+ {:sql {:select [:*] :from [:products]}}
 
  [:duct.handler.sql/query-one :example.handler.product/find]
  {:request {[_ id] :ataraxy/result}
-  :sql     ["SELECT * FROM products WHERE id = ?" id]}
+  :sql     {:select [:*] :from [:products] :where [:= :id id]}}
   
  {[:duct.handler.sql/insert :example.handler.product/create]
  {:request  {[_ name] :ataraxy/result}
-  :sql      ["INSERT INTO products (name) VALUES (?)" name]
+  :sql      {:insert-into :products :columns [:name] :values [[name]]}
   :location "/products{/last_insert_rowid}"}}
 
 {[:duct.handler.sql/execute :example.handler.product/update]
  {:request {[_ id name] :ataraxy/result}
-  :sql     ["UPDATE products SET name = ? WHERE id = ?" name id]}
+  :sql     {:update :products :set {:name name} :where [:= :id id]}}
   
  [:duct.handler.sql/execute :example.handler.product/destroy]
  {:request {[_ id] :ataraxy/result}
-  :sql     ["DELETE FROM products WHERE id = ?" id]}}}
+  :sql     {:delete-from :products :where [:= :id id]}}}}
 ```
 
 Note that the `:db` key can be omitted in this case, because the
@@ -205,7 +206,7 @@ created through your own `init-key` methods.
 
 ## License
 
-Copyright © 2017 James Reeves
+Copyright © 2019 Haokang Den
 
-Distributed under the Eclipse Public License either version 1.0 or (at
+Distributed under the Eclipse Public License either version 2.0 or (at
 your option) any later version.

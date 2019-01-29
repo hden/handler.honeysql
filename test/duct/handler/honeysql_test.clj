@@ -1,9 +1,9 @@
-(ns duct.handler.sql-test
+(ns duct.handler.honeysql-test
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.test :refer :all]
             [duct.core :as duct]
             [duct.database.sql :as db]
-            [duct.handler.sql :as sql]
+            [duct.handler.honeysql :as sql]
             [integrant.core :as ig]))
 
 (duct/load-hierarchy)
@@ -27,7 +27,7 @@
     (let [config  {::sql/query
                    {:db      (db/->Boundary (create-database))
                     :request '{{:keys [post-id]} :route-params}
-                    :sql     '["SELECT body FROM comments WHERE post_id = ?" post-id]}}
+                    :sql     '{:select [:body] :from [:comments] :where [:= :post_id post-id]}}}
           handler (::sql/query (ig/init config))]
       (is (= (handler {:route-params {:post-id "1"}})
              {:status 200, :headers {}, :body [{:body "Great!"} {:body "Rubbish!"}]}))))
@@ -35,7 +35,7 @@
   (testing "without destructuring"
     (let [config  {::sql/query
                    {:db  (db/->Boundary (create-database))
-                    :sql ["SELECT subject FROM posts"]}}
+                    :sql {:select [:subject] :from [:posts]}}}
           handler (::sql/query (ig/init config))]
       (is (= (handler {})
              {:status 200, :headers {}, :body [{:subject "Test"}]}))))
@@ -43,7 +43,7 @@
   (testing "with renamed keys"
     (let [config  {::sql/query
                    {:db     (db/->Boundary (create-database))
-                    :sql    ["SELECT subject, body FROM posts"]
+                    :sql {:select [:subject :body] :from [:posts]}
                     :rename {:subject :post/subject}}}
           handler (::sql/query (ig/init config))]
       (is (= (handler {})
@@ -53,7 +53,7 @@
   (testing "with hrefs"
     (let [config  {::sql/query
                    {:db    (db/->Boundary (create-database))
-                    :sql   ["SELECT id, subject FROM posts"]
+                    :sql   {:select [:id :subject] :from [:posts]}
                     :hrefs {:href "/posts{/id}"}}}
           handler (::sql/query (ig/init config))]
       (is (= (handler {})
@@ -65,7 +65,7 @@
     (let [config  {::sql/query
                    {:db      (db/->Boundary (create-database))
                     :request '{{:keys [pid]} :route-params}
-                    :sql     ["SELECT id, body FROM comments"]
+                    :sql     {:select [:id :body] :from [:comments]}
                     :hrefs   {:href "/posts{/pid}/comments{/id}"}}}
           handler (::sql/query (ig/init config))]
       (is (= (handler {:route-params {:pid "1"}})
@@ -77,7 +77,7 @@
   (testing "with removed keys"
     (let [config  {::sql/query
                    {:db     (db/->Boundary (create-database))
-                    :sql    ["SELECT id, subject FROM posts"]
+                    :sql    {:select [:id :subject] :from [:posts]}
                     :hrefs  {:href "/posts{/id}"}
                     :remove [:id]}}
           handler (::sql/query (ig/init config))]
@@ -90,7 +90,7 @@
     (let [config  {::sql/query-one
                    {:db      (db/->Boundary (create-database))
                     :request '{{:keys [id]} :route-params}
-                    :sql     '["SELECT subject, body FROM posts WHERE id = ?" id]}}
+                    :sql     '{:select [:subject :body] :from [:posts] :where [:= :id id]}}}
           handler (::sql/query-one (ig/init config))]
       (is (= (handler {:route-params {:id "1"}})
              {:status 200, :headers {}, :body {:subject "Test", :body "Testing 1, 2, 3."}}))
@@ -101,7 +101,7 @@
     (let [config  {::sql/query-one
                    {:db      (db/->Boundary (create-database))
                     :request '{{:keys [id]} :route-params}
-                    :sql     '["SELECT subject, body FROM posts WHERE id = ?" id]
+                    :sql     '{:select [:subject :body] :from [:posts] :where [:= :id id]}
                     :rename  {:subject :post/subject}}}
           handler (::sql/query-one (ig/init config))]
       (is (= (handler {:route-params {:id "1"}})
@@ -112,7 +112,7 @@
     (let [config  {::sql/query-one
                    {:db      (db/->Boundary (create-database))
                     :request '{{:keys [id]} :route-params}
-                    :sql     '["SELECT id, subject FROM posts WHERE id = ?" id]
+                    :sql     '{:select [:id :subject] :from [:posts] :where [:= :id id]}
                     :hrefs   {:href "/posts{/id}"}}}
           handler (::sql/query-one (ig/init config))]
       (is (= (handler {:route-params {:id "1"}})
@@ -124,7 +124,7 @@
     (let [config  {::sql/query-one
                    {:db      (db/->Boundary (create-database))
                     :request '{{:keys [id]} :route-params}
-                    :sql     '["SELECT subject FROM posts WHERE id = ?" id]
+                    :sql     '{:select [:subject] :from [:posts] :where [:= :id id]}
                     :hrefs   {:href "/posts{/id}"}}}
           handler (::sql/query-one (ig/init config))]
       (is (= (handler {:route-params {:id "1"}})
@@ -135,7 +135,7 @@
     (let [config  {::sql/query-one
                    {:db      (db/->Boundary (create-database))
                     :request '{{:keys [id]} :route-params}
-                    :sql     '["SELECT id, subject FROM posts WHERE id = ?" id]
+                    :sql     '{:select [:subject] :from [:posts] :where [:= :id id]}
                     :hrefs   {:href "/posts{/id}"}
                     :remove  [:id]}}
           handler (::sql/query-one (ig/init config))]
@@ -148,7 +148,7 @@
         config  {::sql/execute
                  {:db      (db/->Boundary db)
                   :request '{{:keys [id]} :route-params, {:strs [body]} :form-params}
-                  :sql     '["UPDATE comments SET body = ? WHERE id = ?" body id]}}
+                  :sql     '{:update :comments :set  {:body body} :where [:= :id id]}}}
         handler (::sql/execute (ig/init config))]
     (testing "valid update"
       (is (= (handler {:route-params {:id "1"}, :form-params {"body" "Average"}})
@@ -166,7 +166,7 @@
           config  {::sql/insert
                    {:db       (db/->Boundary db)
                     :request  '{{:keys [pid]} :route-params, {:strs [body]} :form-params}
-                    :sql      '["INSERT INTO comments (post_id, body) VALUES (?, ?)" pid body]
+                    :sql      '{:insert-into :comments :columns [:post_id :body] :values [[pid body]]}
                     :location "/posts{/pid}/comments{/last_insert_rowid}"}}
           handler (::sql/insert (ig/init config))]
       (is (= (handler {:route-params {:pid "1"}, :form-params {"body" "New comment"}})
@@ -179,7 +179,7 @@
           config {::sql/insert
                   {:db      (db/->Boundary db)
                    :request '{{:keys [pid]} :route-params, {:strs [body]} :form-params}
-                   :sql     '["INSERT INTO comments (post_id, body) VALUES (?, ?)" pid body]}}
+                   :sql     '{:insert-into :comments :columns [:post_id :body] :values [[pid body]]}}}
           handler (::sql/insert (ig/init config))]
       (is (= (handler {:route-params {:pid "1"}, :form-params {"body" "New comment"}})
              {:status 201, :headers {}, :body nil}))

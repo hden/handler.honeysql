@@ -1,10 +1,11 @@
-(ns duct.handler.sql
+(ns duct.handler.honeysql
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.set :as set]
             [clojure.string :as str]
             [clojure.walk :as walk]
             [duct.database.sql :as sql]
             [integrant.core :as ig]
+            [honeysql.core :as honeysql]
             [medley.core :as m]
             [ring.util.response :as resp]
             [uritemplate-clj.core :as ut]))
@@ -61,7 +62,7 @@
   (let [opts (transform-opts-expr opts)
         f    (eval `(fn [db#]
                       (fn [~request]
-                        (->> (query db# ~sql)
+                        (->> (query db# (honeysql/format ~sql))
                              (map #(transform-result % ~opts))
                              (resp/response)))))]
     (f db)))
@@ -71,7 +72,7 @@
   (let [opts (transform-opts-expr opts)
         f    (eval `(fn [db#]
                       (fn [~request]
-                        (if-let [result# (first (query db# ~sql))]
+                        (if-let [result# (first (query db# (honeysql/format ~sql)))]
                           (resp/response (transform-result result# ~opts))
                           (resp/not-found {:error :not-found})))))]
     (f db)))
@@ -80,7 +81,7 @@
   [_ {:as opts :keys [db request sql] :or {request '_}}]
   (let [f (eval `(fn [db#]
                    (fn [~request]
-                     (if (zero? (first (execute! db# ~sql)))
+                     (if (zero? (first (execute! db# (honeysql/format ~sql))))
                        (resp/not-found {:error :not-found})
                        {:status 204, :headers {}, :body nil}))))]
     (f db)))
@@ -91,11 +92,11 @@
         f    (eval (if location
                      `(fn [db#]
                         (fn [~request]
-                          (-> (insert! db# ~sql)
+                          (-> (insert! db# (honeysql/format ~sql))
                               (generated-uri ~opts)
                               (resp/created))))
                      `(fn [db#]
                         (fn [~request]
-                          (insert! db# ~sql)
+                          (insert! db# (honeysql/format ~sql))
                           {:status 201, :headers {}, :body nil}))))]
     (f db)))
