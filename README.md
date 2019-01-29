@@ -27,14 +27,14 @@ bindings, such as [Ataraxy][].
 Querying the database generally follows a HTTP `GET` request. There
 are two keys for creating handlers that query the database:
 
-* `:duct.handler.sql/query`     - for multiple results
-* `:duct.handler.sql/query-one` - for when you have only one result
+* `:duct.handler.honeysql/query`     - for multiple results
+* `:duct.handler.honeysql/query-one` - for when you have only one result
 
 The simplest usage is a handler that queries the database the same way
 each time:
 
 ```edn
-{[:duct.handler.sql/query :example.handler.product/list]
+{[:duct.handler.honeysql/query :example.handler.product/list]
  {:db  #ig/ref :duct.database/sql
   :sql {:select [:*] :from [:products]}}}
 ```
@@ -49,7 +49,7 @@ If you want to change the query based on the request, you can
 destructure the parameters you want in the `:request` option:
 
 ```edn
-{[:duct.handler.sql/query-one :example.handler.product/find]
+{[:duct.handler.honeysql/query-one :example.handler.product/find]
  {:db      #ig/ref :duct.database/sql
   :request {{:keys [id]} :route-params}
   :sql     {:select [:*] :from [:products] :where [:= :id id]}}}
@@ -59,7 +59,7 @@ The response can also be altered. The `:rename` option is available
 for renaming keys returned in the result set:
 
 ```edn
-{[:duct.handler.sql/query :example.handler.product/list]
+{[:duct.handler.honeysql/query :example.handler.product/list]
  {:db     #ig/ref :duct.database/sql
   :sql    [:select [:id :name] :from [:products]]
   :rename {:id :product/id, :name :product/name}}}
@@ -69,7 +69,7 @@ The `:hrefs` option adds hypertext references based on [URI
 Templates][]:
 
 ```edn
-{[:duct.handler.sql/query :example.handler.product/list]
+{[:duct.handler.honeysql/query :example.handler.product/list]
  {:db    #ig/ref :duct.database/sql
   :sql   [:select [:id :name] :from [:products]]
   :hrefs {:self "/products{/id}"}}}
@@ -83,7 +83,7 @@ response. This is useful if you want a key to be used in a href, but
 not to show up in the final response:
 
 ```edn
-{[:duct.handler.sql/query :example.handler.product/list]
+{[:duct.handler.honeysql/query :example.handler.product/list]
  {:db     #ig/ref :duct.database/sql
   :sql    [:select [:id :name] :from [:products]]
   :hrefs  {:self "/products{/id}"}
@@ -99,15 +99,15 @@ not to show up in the final response:
 Sometimes a HTTP request will alter the database. There are two keys
 for creating handlers that update the database:
 
-* `:duct.handler.sql/insert`  - for inserting rows
-* `:duct.handler.sql/execute` - for updating or deleting rows
+* `:duct.handler.honeysql/insert`  - for inserting rows
+* `:duct.handler.honeysql/execute` - for updating or deleting rows
 
-The `:duct.handler.sql/insert` key is designed to respond to a HTTP
+The `:duct.handler.honeysql/insert` key is designed to respond to a HTTP
 `POST` event and send a "Created" 201 response with a "Location"
 header created from the generated ID of an `INSERT`. For example:
 
 ```edn
-{[:duct.handler.sql/insert :example.handler.product/create]
+{[:duct.handler.honeysql/insert :example.handler.product/create]
  {:db       #ig/ref :duct.database/sql
   :request  {{:strs [name]} :form-params}
   :sql      {:insert-into :products :columns [:name] :values [[name]]}
@@ -119,7 +119,7 @@ being used. For [SQLite][], the ID is returned in the
 `last_insert_rowid()` field. Because `()` are not valid characters in
 URI templates, these are removed when the field name is sanitized.
 
-The `:duct.handler.sql/execute` doesn't have to worry about generated
+The `:duct.handler.honeysql/execute` doesn't have to worry about generated
 keys; it's designed to report to HTTP `DELETE` and `PUT` requests. If
 the SQL updates one or more rows, a "No Content" 204 response is
 returned, otherwise, if zero rows are updated, a 404 response is
@@ -128,12 +128,12 @@ returned.
 For example:
 
 ```edn
-{[:duct.handler.sql/execute :example.handler.product/update]
+{[:duct.handler.honeysql/execute :example.handler.product/update]
  {:db       #ig/ref :duct.database/sql
   :request  {{:keys [id]} :route-params, {:strs [name]} :form-params}
   :sql      {:update :products :set {:name name} :where [:= :id id]}}
 
- [:duct.handler.sql/execute :example.handler.product/destroy]
+ [:duct.handler.honeysql/execute :example.handler.product/destroy]
  {:db       #ig/ref :duct.database/sql
   :request  {{:keys [id]} :route-params}
   :sql      {:delete-from :products :where [:= :id id]}}
@@ -167,23 +167,23 @@ something like:
    [:delete "/" id]
    [:product/destroy ^uuid id]}}
 
- [:duct.handler.sql/query :example.handler.product/list]
+ [:duct.handler.honeysql/query :example.handler.product/list]
  {:sql {:select [:*] :from [:products]}}
 
- [:duct.handler.sql/query-one :example.handler.product/find]
+ [:duct.handler.honeysql/query-one :example.handler.product/find]
  {:request {[_ id] :ataraxy/result}
   :sql     {:select [:*] :from [:products] :where [:= :id id]}}
 
- {[:duct.handler.sql/insert :example.handler.product/create]
+ {[:duct.handler.honeysql/insert :example.handler.product/create]
  {:request  {[_ name] :ataraxy/result}
   :sql      {:insert-into :products :columns [:name] :values [[name]]}
   :location "/products{/last_insert_rowid}"}}
 
-{[:duct.handler.sql/execute :example.handler.product/update]
+{[:duct.handler.honeysql/execute :example.handler.product/update]
  {:request {[_ id name] :ataraxy/result}
   :sql     {:update :products :set {:name name} :where [:= :id id]}}
 
- [:duct.handler.sql/execute :example.handler.product/destroy]
+ [:duct.handler.honeysql/execute :example.handler.product/destroy]
  {:request {[_ id] :ataraxy/result}
   :sql     {:delete-from :products :where [:= :id id]}}}}
 ```
