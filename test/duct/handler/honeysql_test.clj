@@ -22,6 +22,43 @@
   (isa? ::sql/execute   :duct.module.sql/requires-db)
   (isa? ::sql/insert    :duct.module.sql/requires-db))
 
+(deftest prep-test
+  (testing "query"
+    (is (= (ig/prep {::sql/query
+                     {:sql {:select [:*] :from [:comments]}}})
+           {::sql/query
+            {:db  (ig/ref :duct.database/sql)
+             :sql {:select [:*] :from [:comments]}}})))
+
+  (testing "query-one"
+    (is (= (ig/prep {::sql/query
+                     {:request '{{:keys [id]} :route-params}
+                      :sql     '{:select [:subject :body] :from [:posts] :where [:= :id id]}}})
+           {::sql/query
+            {:db      (ig/ref :duct.database/sql)
+             :request '{{:keys [id]} :route-params}
+             :sql     '{:select [:subject :body] :from [:posts] :where [:= :id id]}}})))
+
+  (testing "execute"
+    (is (= (ig/prep {::sql/query
+                     {:request '{{:keys [id]} :route-params, {:strs [body]} :form-params}
+                      :sql     '{:update :comments :set {:body body} :where [:= :id id]}}})
+           {::sql/query
+            {:db      (ig/ref :duct.database/sql)
+             :request '{{:keys [id]} :route-params, {:strs [body]} :form-params}
+             :sql     '{:update :comments :set {:body body} :where [:= :id id]}}})))
+
+  (testing "insert"
+    (is (= (ig/prep {::sql/query
+                     {:request  '{{:keys [pid]} :route-params, {:strs [body]} :form-params}
+                      :sql      '{:insert-into :comments :columns [:post_id :body] :values [[pid body]]}
+                      :location "/posts{/pid}/comments{/last_insert_rowid}"}})
+           {::sql/query
+            {:db       (ig/ref :duct.database/sql)
+             :request  '{{:keys [pid]} :route-params, {:strs [body]} :form-params}
+             :sql      '{:insert-into :comments :columns [:post_id :body] :values [[pid body]]}
+             :location "/posts{/pid}/comments{/last_insert_rowid}"}}))))
+
 (deftest query-test
   (testing "with destructuring"
     (let [config  {::sql/query
@@ -148,7 +185,7 @@
         config  {::sql/execute
                  {:db      (db/->Boundary db)
                   :request '{{:keys [id]} :route-params, {:strs [body]} :form-params}
-                  :sql     '{:update :comments :set  {:body body} :where [:= :id id]}}}
+                  :sql     '{:update :comments :set {:body body} :where [:= :id id]}}}
         handler (::sql/execute (ig/init config))]
     (testing "valid update"
       (is (= (handler {:route-params {:id "1"}, :form-params {"body" "Average"}})
