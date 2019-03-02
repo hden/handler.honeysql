@@ -1,5 +1,5 @@
-{:duct.handler/sql           [:duct/handler]
- :duct.handler.sql/query     [:duct.handler/sql :duct.module.sql/requires-db]
- :duct.handler.sql/query-one [:duct.handler/sql :duct.module.sql/requires-db]
- :duct.handler.sql/insert    [:duct.handler/sql :duct.module.sql/requires-db]
- :duct.handler.sql/execute   [:duct.handler/sql :duct.module.sql/requires-db]}
+{:duct.handler/honeysql           [:duct/handler]
+ :duct.handler.honeysql/query     [:duct.handler/honeysql]
+ :duct.handler.honeysql/query-one [:duct.handler/honeysql]
+ :duct.handler.honeysql/insert    [:duct.handler/honeysql]
+ :duct.handler.honeysql/execute   [:duct.handler/honeysql]}
