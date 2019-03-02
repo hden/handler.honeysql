@@ -50,7 +50,7 @@ If you omit the `:db` option, the `ig/prep` stage will default it to
 
 ```edn
 {[:duct.handler.honeysql/query :example.handler.product/list]
- {:sql ["SELECT * FROM products"]}}
+ {:sql {:select [:*] :from [:products]}}}
 ```
 
 If you want to change the query based on the request, you can
