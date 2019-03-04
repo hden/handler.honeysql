@@ -1,6 +1,6 @@
 (defproject hden/handler.honeysql "0.4.0"
   :description "Duct library for building simple database-driven handlers"
-  :url "https://github.com/duct-framework/handler.sql"
+  :url "https://github.com/hden/handler.honeysql"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.10.0"]
