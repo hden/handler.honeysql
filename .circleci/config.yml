@@ -4,7 +4,13 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/clojure:lein-2.7.1
+      - image: circleci/clojure:lein-2.9.0
+        environment:
+          DATABASE_URL: jdbc:postgresql://127.0.0.1/circleci
+      - image: circleci/postgres:11-alpine-ram
+        environment:
+          POSTGRES_USER: circleci
+          POSTGRES_DB: circleci
     working_directory: ~/repo
     environment:
       LEIN_ROOT: "true"
@@ -22,4 +28,14 @@ jobs:
           paths:
             - ~/.m2
           key: v1-dependencies-{{ checksum "project.clj" }}
+      - run:
+          name: Waiting for Postgres
+          command: |
+            for i in `seq 1 10`;
+            do
+              nc -z localhost 5432 && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for Postgres && exit 1
       - run: lein test

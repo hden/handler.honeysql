@@ -1,4 +1,4 @@
-(ns duct.handler.honeysql
+(ns duct.handler.honeysql-postgres
   (:require [clojure.walk :refer [postwalk]]
             [duct.handler.sql :as sql]
             [honeysql.core :as honeysql]
@@ -15,7 +15,7 @@
                            x))]
     (honeysql/format (postwalk symbol->param! x) :params @params)))
 
-(defmethod ig/prep-key :duct.handler/honeysql [_ opts]
+(defmethod ig/prep-key :duct.handler/honeysql-postgres [_ opts]
   (if (:db opts)
     opts
     (assoc opts :db (ig/ref :duct.database/sql))))

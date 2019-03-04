@@ -1,5 +1,5 @@
-{:duct.handler/honeysql           [:duct/handler]
- :duct.handler.honeysql/query     [:duct.handler/honeysql]
- :duct.handler.honeysql/query-one [:duct.handler/honeysql]
- :duct.handler.honeysql/insert    [:duct.handler/honeysql]
- :duct.handler.honeysql/execute   [:duct.handler/honeysql]}
+{:duct.handler/honeysql-postgres           [:duct/handler]
+ :duct.handler.honeysql-postgres/query     [:duct.handler/honeysql-postgres]
+ :duct.handler.honeysql-postgres/query-one [:duct.handler/honeysql-postgres]
+ :duct.handler.honeysql-postgres/insert    [:duct.handler/honeysql-postgres]
+ :duct.handler.honeysql-postgres/execute   [:duct.handler/honeysql-postgres]}
