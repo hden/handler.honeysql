@@ -7,7 +7,8 @@ handler functions that execute SQL expressions.
 [ring]: https://github.com/ring-clojure/ring
 
 ## Note
-Forked from: https://github.com/duct-framework/handler.sql
+- Forked from: https://github.com/duct-framework/handler.sql
+- For PostgreSQL, checkout https://clojars.org/hden/handler.honeysql-postgres
 
 ## Installation
 
