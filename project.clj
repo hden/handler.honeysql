@@ -1,4 +1,4 @@
-(defproject hden/handler.honeysql-postgres "0.1.0"
+(defproject hden/handler.honeysql-postgres "0.2.0"
   :description "Duct library for building simple database-driven handlers"
   :url "https://github.com/hden/handler.honeysql"
   :license {:name "Eclipse Public License"
