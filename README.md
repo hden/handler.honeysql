@@ -1,4 +1,4 @@
-# Duct handler.honeysql [![CircleCI](https://circleci.com/gh/hden/handler.honeysql/tree/master.svg?style=svg)](https://circleci.com/gh/hden/handler.honeysql/tree/master)
+# Duct handler.honeysql [![CircleCI](https://circleci.com/gh/hden/handler.honeysql/tree/postgres.svg?style=svg)](https://circleci.com/gh/hden/handler.honeysql/tree/postgres)
 
 A [Duct][] library that provides a way of constructing simple [Ring][]
 handler functions that execute SQL expressions.
@@ -14,7 +14,7 @@ handler functions that execute SQL expressions.
 
 To install, add the following to your project `:dependencies`:
 
-    [hden/handler.honeysql-postgres "0.1.0"]
+    [hden/handler.honeysql-postgres "0.2.0"]
 
 ## Usage
 
