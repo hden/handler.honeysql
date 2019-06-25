@@ -9,6 +9,6 @@
                  [integrant "0.7.0"]]
   :profiles
   {:dev {:dependencies [[org.clojure/java.jdbc "0.7.9"]
-                        [org.xerial/sqlite-jdbc "3.27.2.1"]
+                        [org.xerial/sqlite-jdbc "3.28.0"]
                         [duct/core "0.7.0"]
                         [duct/database.sql "0.1.0"]]}})
