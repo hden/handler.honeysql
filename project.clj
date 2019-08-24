@@ -8,7 +8,7 @@
                  [honeysql "0.9.5"]
                  [integrant "0.7.0"]]
   :profiles
-  {:dev {:dependencies [[org.clojure/java.jdbc "0.7.9"]
+  {:dev {:dependencies [[org.clojure/java.jdbc "0.7.10"]
                         [org.xerial/sqlite-jdbc "3.28.0"]
                         [duct/core "0.7.0"]
                         [duct/database.sql "0.1.0"]]}})
