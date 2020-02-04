@@ -10,5 +10,5 @@
   :profiles
   {:dev {:dependencies [[org.clojure/java.jdbc "0.7.11"]
                         [org.xerial/sqlite-jdbc "3.30.1"]
-                        [duct/core "0.7.0"]
+                        [duct/core "0.8.0"]
                         [duct/database.sql "0.1.0"]]}})
