@@ -5,7 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.10.1"]
                  [duct/handler.sql "0.4.0"]
-                 [honeysql "0.9.8"]
+                 [honeysql "0.9.9"]
                  [integrant "0.8.0"]]
   :profiles
   {:dev {:dependencies [[org.clojure/java.jdbc "0.7.11"]
