@@ -3,7 +3,7 @@
   :url "https://github.com/hden/handler.honeysql"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.10.1"]
+  :dependencies [[org.clojure/clojure "1.11.1"]
                  [duct/handler.sql "0.4.0"]
                  [honeysql "1.0.444"]
                  [integrant "0.8.0"]]
