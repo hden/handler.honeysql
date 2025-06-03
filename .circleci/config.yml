@@ -4,7 +4,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/clojure:lein-2.7.1
+      - image: cimg/clojure:1.11
     working_directory: ~/repo
     environment:
       LEIN_ROOT: "true"
